@@ -471,7 +471,7 @@ void WhoIsOnline::loadWebList()
 
                 OnlinePlayer *const player = new OnlinePlayer(nick,
                     CAST_U8(255), level,
-                    Gender::UNSPECIFIED, -1);
+                    Gender::UNSPECIFIED, -1, 0);
                 mOnlinePlayers.insert(player);
                 mOnlineNicks.insert(nick);
 
@@ -870,7 +870,9 @@ void OnlinePlayer::setText(std::string color)
         }
     }
 
-    if ((mStatus != 255 && ((mStatus & BeingFlag::GM) != 0)) || mIsGM)
+    if (GroupDb::getShowBadge(mGroup))
+        mText.append(strprintf("(%s) ", GroupDb::getName(mGroup)));
+    else if ((mStatus != 255 && ((mStatus & BeingFlag::GM) != 0)) || mIsGM)
         mText.append("(GM) ");
 
     if (mLevel > 0)
@@ -880,6 +882,9 @@ void OnlinePlayer::setText(std::string color)
         mText.append("\u2640");
     else if (mGender == Gender::MALE)
         mText.append("\u2642");
+
+    if (GroupDb::getHighlightName(mGroup) && color == "0")
+        color = "2";
 
     if (mStatus > 0 && mStatus != 255)
     {
